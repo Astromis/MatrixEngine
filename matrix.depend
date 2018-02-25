@@ -1,20 +1,27 @@
 # depslib dependency file v1.0
-1519063280 source:/home/igor/projects/C_C++/matrix/main.cpp
+1519573171 source:/home/igor/projects/C_C++/matrix/main.cpp
 	<iostream>
 	"matrix.h"
+	"array.h"
 	<cstdlib>
 
-1519063301 source:/home/igor/projects/C_C++/matrix/src/array.cpp
+1519404285 source:/home/igor/projects/C_C++/matrix/src/array.cpp
 	"array.h"
+	"math.h"
 	<iostream>
 	<iomanip>
 	<cstdlib>
 
-1519064820 /home/igor/projects/C_C++/matrix/include/array.h
+1519575904 /home/igor/projects/C_C++/matrix/include/array.h
+	"array.h"
+	"math.h"
+	<iostream>
+	<iomanip>
+	<cstdlib>
 	<istream>
 	<ostream>
 
-1519055669 source:/home/igor/projects/C_C++/matrix/src/matrix.cpp
+1519402006 source:/home/igor/projects/C_C++/matrix/src/matrix.cpp
 	"matrix.h"
 	<vector>
 	"array.h"
@@ -22,7 +29,11 @@
 	<iostream>
 	<cstdlib>
 
-1519052885 /home/igor/projects/C_C++/matrix/include/matrix.h
-	"array.h"
+1519574046 /home/igor/projects/C_C++/matrix/include/matrix.h
+	<array.h>
 	<vector>
+	<vector>
+	<iomanip>
+	<iostream>
+	<cstdlib>
 

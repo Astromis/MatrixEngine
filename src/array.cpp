@@ -1,3 +1,4 @@
+/*
 #include "array.h"
 #include "math.h"
 #include <iostream>
@@ -8,47 +9,52 @@ using std::cin; // пространство имен std для cin
 using std::setw;   // пространство имен std для setw
 
 #include <cstdlib>
-
-Array::Array() // конструктор по умолчанию, без параметров
+template<class T>
+Array<T>::Array() // конструктор по умолчанию, без параметров
 {
     size = 1000; // по умолчанию размер массива = 10 элементов
-    ptr = new int [size]; // выделить место в памяти для массива
+    ptr = new T [size]; // выделить место в памяти для массива
     for (int ix = 0; ix < size; ix++) // обнуляем массив
         ptr[ix] = 0;
 }
 
-Array::Array(int arraySize) // конструктор с параметрами
+template<class T>
+Array<T>::Array(int arraySize) // конструктор с параметрами
 {
     // если значение параметра больше 0, присвоить size значение arraySize, иначе - 10
     size = (arraySize > 0 ? arraySize : 10);
     //delete [] ptr;
-    ptr = new int [size]; // выделить место в памяти для массива
+    ptr = new T [size]; // выделить место в памяти для массива
 
     for (int ix = 0; ix < size; ix++) // обнуляем массив
         ptr[ix] = 0;
 }
 
-Array::Array( const Array &arrayToCopy ) // конструктор копии
+template<class T>
+Array<T>::Array( const Array &arrayToCopy ) // конструктор копии
     :size(arrayToCopy.size)              // инициализатор размера массива
 {
-    ptr = new int [size]; // выделить место в памяти для массива
+    ptr = new T [size]; // выделить место в памяти для массива
 
     for (int ix = 0; ix < size; ix++)
         ptr[ix] = arrayToCopy.ptr[ix]; // заполняем массив значениями массива arrayToCopy
 }
 
-Array::~Array() // десструктор класса Array
+template<class T>
+Array<T>::~Array() // десструктор класса Array
 {
     delete  [] ptr; // освободить память, удалив массив
 }
 
-int Array::getSize() const // возвратить количество элементов массива
+template<class T>
+int Array<T>::getSize() const // возвратить количество элементов массива
 {
     return size;
 }
 
 // перегруженный оператор ввода, для ввода значений массива с клавиатуры
-istream &operator>> (istream & input, Array &obj)
+template<class T>
+istream &operator>> (istream & input, Array<T> &obj)
 {
     for (int ix = 0; ix < obj.size; ix++)
         input >> obj.ptr[ix]; // заполняем массив объекта obj
@@ -56,7 +62,8 @@ istream &operator>> (istream & input, Array &obj)
 }
 
 // перегруженный оператор вывода для класса Array (вывод элементов массива на экран)
-ostream &operator<< (ostream &output, const Array &obj)
+template<class T>
+ostream &operator<< (ostream &output, const Array<T> &obj)
 {
     for (int ix = 0; ix < obj.size; ix++)
     {
@@ -69,13 +76,15 @@ ostream &operator<< (ostream &output, const Array &obj)
     return output; // позволяет множественный вывод, типа cout << x << y << z << ...
 }
 
-void Array::setArray() // заполнение массива
+template<class T>
+void Array<T>::setArray() // заполнение массива
 {
     for (int ix = 0; ix < size; ix++)
         cin >> ptr[ix]; // ввод элемента массива с клавиатуры
 }
 
-void Array::getArray() // вывод массива
+template<class T>
+void Array<T>::getArray() // вывод массива
 {
     for (int ix = 0; ix < size; ix++)
         cout << setw(5) << ptr[ix]; // вывод элементов массива на экран
@@ -83,7 +92,8 @@ void Array::getArray() // вывод массива
     cout << std::endl; // новая строка
 }
 
-const Array &Array::operator= (const Array &right) // оператор присваивания
+template<class T>
+const Array<T> &Array<T>::operator= (const Array &right) // оператор присваивания
 {
     if (&right != this) // чтобы не выполнялось самоприсваивание
     {
@@ -91,7 +101,7 @@ const Array &Array::operator= (const Array &right) // оператор прис�
         {
             delete [] ptr; // освободить пространство
             size = right.size; // установить нужный размер массива
-            ptr = new int [size]; // выделить память под копируемый массив
+            ptr = new T [size]; // выделить память под копируемый массив
         }
 
         for (int ix = 0; ix < size; ix++)
@@ -101,7 +111,8 @@ const Array &Array::operator= (const Array &right) // оператор прис�
     return *this; // разрешает множественное присваивание, например x = t = e
 }
 
-bool Array::operator== (const Array &right) const// оператор сравнения
+template<class T>
+bool Array<T>::operator== (const Array &right) const// оператор сравнения
 {
     if (size != right.size)
         return false; // массивы с разным количеством элементов
@@ -112,7 +123,8 @@ bool Array::operator== (const Array &right) const// оператор сравн�
     return true; // массивы равны
 }
 
-int &Array::operator[] (int subscript)
+template<class T>
+T &Array<T>::operator[] (int subscript)
 {
     if(subscript < 0 || subscript >= size)
     {
@@ -122,7 +134,8 @@ int &Array::operator[] (int subscript)
     return ptr[subscript]; // возврат ссылки на элемент массива
 }
 
-Array Array::operator+ (const Array &right)
+template<class T>
+Array<T> Array<T>::operator+ (const Array &right)
 {
     if (size != right.size)
     {
@@ -137,7 +150,8 @@ Array Array::operator+ (const Array &right)
     return result; // вернуть сумму
 }
 
- Array &Array::operator+= (const int &number) // оператор добавления элемента в конец массива
+template<class T>
+ Array<T> &Array<T>::operator+= (const int &number) // оператор добавления элемента в конец массива
 {
     Array result(size);
     result = *this; // временно сохраним текущий массив
@@ -145,7 +159,7 @@ Array Array::operator+ (const Array &right)
     delete [] ptr; // освобождаем память
 
     size = size + 1; // увеличиваем размер массива на 1
-    ptr = new int [size]; // выделяем память
+    ptr = new T [size]; // выделяем память
 
     for (int ix = 0; ix < (size - 1); ix++)
         ptr[ix] = result.ptr[ix]; // скопировать массив
@@ -155,7 +169,8 @@ Array Array::operator+ (const Array &right)
     return *this; // каскадный вызов перегруженного оператора
 }
 
- Array &Array::operator- (const int & key) // оператор удаления элемента по ключу
+template<class T>
+ Array<T> &Array<T>::operator- (const int & key) // оператор удаления элемента по ключу
  {
      int counterKey = 0; // счетчик найденных ключевых элементов
      // определяем количество элементов, которые необходимо удалить
@@ -171,7 +186,7 @@ Array Array::operator+ (const Array &right)
      delete [] ptr; // jосвобождае память
      size = size - counterKey; // переопределяем размер
 
-     ptr = new int [size];
+     ptr = new T [size];
      int counter = 0, ix = 0;
      while (counter < size)
      {
@@ -186,7 +201,8 @@ Array Array::operator+ (const Array &right)
      return *this;
  }
 
- int Array::search(const int key) const // поиск по ключу
+template<class T>
+ int Array<T>::search(const T key) const // поиск по ключу
  {
      for (int ix = 0; ix < size; ix++)
          if ( key == ptr[ix] ) // поиск по ключу
@@ -195,7 +211,8 @@ Array Array::operator+ (const Array &right)
      return -1;
  }
 
- void Array::choicesSort() // сортировка выбором
+ template<class T>
+ void Array<T>::choicesSort() // сортировка выбором
  {
      for (int repeat_counter = 0; repeat_counter < size; repeat_counter++)
      {
@@ -212,14 +229,16 @@ Array Array::operator+ (const Array &right)
      }
  }
 
- void Array::setSize(int array_size)
+ template<class T>
+ void Array<T>::setSize(int array_size)
  {
     size = array_size;
  }
 
- int Array::sum() const
+ template<class T>
+ T Array<T>::sum() const
  {
-     int res = 0;
+     T res = 0;
      for(int i=0;i<size;i++)
      {
          res += ptr[i];
@@ -227,14 +246,16 @@ Array Array::operator+ (const Array &right)
      return res;
  }
 
- float Array::mean() const
+ template<class T>
+ float Array<T>::mean() const
  {
      float res=0;
      res = this->sum()/(float)size;
      return res;
  }
 
- float Array::std() const
+ template<class T>
+ float Array<T>::std() const
  {
      float res=0;
      float m = this->mean();
@@ -243,3 +264,23 @@ Array Array::operator+ (const Array &right)
      return sqrt(res/(size-1));
 
  }
+
+ template<class T>
+ void Array<T>::fill_(const T a,const T b)
+ {
+     T tmp = 0;
+     for (int ix = 0; ix < size; ix++)
+     {
+         tmp = 1;//rand() % b;
+         if(tmp <= a)
+         {
+             ptr[ix] = a;
+         }
+         else
+            ptr[ix] = tmp;
+     }
+
+ }
+
+*/
+//void

@@ -1,3 +1,5 @@
+
+/*
 #include "matrix.h"
 #include <vector>
 #include "array.h"
@@ -310,3 +312,4 @@ bool Matrix::operator== (const Matrix &right) const// оператор срав�
 
     return true; // матрицы равны
 }
+*/
