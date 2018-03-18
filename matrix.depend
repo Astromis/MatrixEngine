@@ -1,9 +1,12 @@
 # depslib dependency file v1.0
-1519573171 source:/home/igor/projects/C_C++/matrix/main.cpp
+1521371517 source:/home/igor/projects/C_C++/matrix/main.cpp
 	<iostream>
 	"matrix.h"
 	"array.h"
 	<cstdlib>
+	<fstream>
+	<stdio.h>
+	"word2vec.h"
 
 1519404285 source:/home/igor/projects/C_C++/matrix/src/array.cpp
 	"array.h"
@@ -12,7 +15,7 @@
 	<iomanip>
 	<cstdlib>
 
-1519575904 /home/igor/projects/C_C++/matrix/include/array.h
+1520546461 /home/igor/projects/C_C++/matrix/include/array.h
 	"array.h"
 	"math.h"
 	<iostream>
@@ -29,11 +32,18 @@
 	<iostream>
 	<cstdlib>
 
-1519574046 /home/igor/projects/C_C++/matrix/include/matrix.h
+1521370075 /home/igor/projects/C_C++/matrix/include/matrix.h
 	<array.h>
 	<vector>
+	"math.h"
 	<vector>
 	<iomanip>
 	<iostream>
+	<fstream>
 	<cstdlib>
+
+1521371546 /home/igor/projects/C_C++/matrix/include/word2vec.h
+
+1521371351 source:/home/igor/projects/C_C++/matrix/src/word2vec.c
+	"word2vec.h"
 

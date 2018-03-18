@@ -33,6 +33,7 @@ public:
     Array( const Array & ); // конструктор копии
     virtual ~Array(); // десструктор
 
+    T *getPtr();
     int getSize() const; // возвратить количество элементов массива
     void setArray(); // заполнение массива
     void getArray(); // вывод массива
@@ -56,7 +57,11 @@ public:
     T min();
 
 };
-
+template<class T>
+T* Array<T>::getPtr()
+{
+    return ptr;
+}
 
 template<class T>
 Array<T>::Array() // конструктор по умолчанию, без параметров
