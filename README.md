@@ -4,7 +4,7 @@ This code provied basic functions to manupilate with matrixes.
 
 
 18.03.17
-Added word2vec implimentation by original code of Google Research. Some troubles with compilation
+Added word2vec implimentation by original code of Google Research.
 
 11.03.17
 TODO:
