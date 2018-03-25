@@ -78,7 +78,6 @@ Array<T>::Array(int arraySize) // конструктор с параметрам
 {
     // если значение параметра больше 0, присвоить size значение arraySize, иначе - 10
     size = (arraySize > 0 ? arraySize : 5);
-    //delete [] ptr;
     ptr = new T [size]; // выделить место в памяти для массива
 
 }

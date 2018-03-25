@@ -5,7 +5,15 @@
 #include <array.h>
 #include <vector>
 #include "math.h"
+#include <iomanip>
+#include <iostream>
+#include <fstream>
+#include <cstdlib>
 
+using std::cout;
+using std::cin;
+using std::endl;
+using std::setw;
 using std::vector;
 
 /** \brief Matrix class
@@ -93,8 +101,8 @@ public:
     Matrix transpose();
     Matrix<T1> concat( Matrix &b, char mode);
 
-    void save(const char * path);
-
+    void save(char * path);
+    void load(char* path);
     const Matrix &operator= (const Matrix &right); // оператор присваивания
     bool operator== (const Matrix &right) const;// оператор сравнения
 
@@ -104,27 +112,8 @@ public:
 
 };
 
-
-#endif // MATRIX_H
-
-
-//#include "matrix.h"
-#include <vector>
-//#include "array.h"
-#include <iomanip>
-#include <iostream>
-#include <fstream>
-
-using std::cout; // пространство имен std для cout
-using std::cin; // пространство имен std для cin
-using std::endl;
- // для манипулятора setw
-using std::setw;   // пространство имен std для setw
-using std::vector;
-#include <cstdlib>
-
 template<class T1>
-void Matrix<T1>::save(const char* path)
+void Matrix<T1>::save(char* path)
 {
     FILE *myfile;
     char  a[1];
@@ -140,14 +129,34 @@ void Matrix<T1>::save(const char* path)
     pream[0]=raws;pream[1]=columns;
     //writing quantity of raws and columns
     fwrite(pream, sizeof(int), 2, myfile);
-    fwrite(a, sizeof(char), 1, myfile);
+    //fwrite(a, sizeof(char), 1, myfile);
     //writing values by raws and columns
     for(int i=0;i<raws;i++)
     {
-        fwrite(ArrayPtr[i].getPtr(), sizeof(int), 2, myfile);
-        fwrite(a, sizeof(char), 1, myfile);
+        fwrite(ArrayPtr[i].getPtr(), sizeof(T1), columns, myfile);
+        //fwrite(a, sizeof(char), 1, myfile);
 
     }
+    fclose(myfile);
+}
+
+template<class T1>
+void Matrix<T1>::load(char* path)
+{
+    FILE *myfile;
+    int pream[2];
+    myfile = fopen (path, "r");
+    if(myfile == NULL)
+    {
+        cout<<"Cannot open file.";
+        exit(1);
+    }
+    fread(pream,sizeof(int), 2, myfile);
+    this->resize_matrix(pream[0],pream[1]);
+    for(int i=0;i<raws;i++)
+    fread(ArrayPtr[i].getPtr(),sizeof(T1), columns, myfile);
+    fclose(myfile);
+
 }
 
 template<class T1>
@@ -407,6 +416,7 @@ Matrix<T1> Matrix<T1>::operator/(const Matrix &right)
 
 template<class T1>
 void Matrix<T1>::T()
+//in-place transpose
 {
     Matrix tmp = *this;
     int tmpraw = raws;
@@ -430,6 +440,7 @@ void Matrix<T1>::T()
 
 template<class T1>
 Matrix<T1> Matrix<T1>::transpose()
+//transpose
 {
 
     Matrix tmp(columns,raws);
@@ -501,6 +512,7 @@ bool Matrix<T1>::operator== (const Matrix &right) const// оператор ср�
 
 template<class T1>
 void Matrix<T1>::fill_rand(const T1 a, const T1 b)
+// fill matrix a random numbers in rand [a,b]
 {
     for(int i=0;i<raws;i++)
     {
@@ -510,6 +522,7 @@ void Matrix<T1>::fill_rand(const T1 a, const T1 b)
 
 template<class T1>
 void Matrix<T1>::fill_normal(float mean,float std)
+// fill matrix with normal distributed numbers
 {
     for(int i=0;i<raws;i++)
     {
@@ -582,6 +595,7 @@ Matrix<T1> Matrix<T1>::activation()
 
 template<class T1>
 Matrix<T1> Matrix<T1>::dot(const Matrix &b)
+// multiplying matrixes
 {
      if(columns != b.raws){
         cout<<"Incompatable sizes of matrixes."<<std::endl;
@@ -599,8 +613,11 @@ Matrix<T1> Matrix<T1>::dot(const Matrix &b)
 }
 
 //----------------------------------
+// in this section placed overloaded functions-friends:
+// - arithmetics operations with non-matrix types where it are on the left
+// - operators in/out
 
-template<class T1> //why are both variants T1 and F1 fi?
+template<class T1> //why are both variants T1 and F1 fine?
 Matrix<T1> operator+(T1 left,Matrix<T1> &right)
 {
     Matrix<T1> res;
@@ -681,6 +698,7 @@ Matrix<T1> operator/(Matrix<T1> &left, T1 right)
 }
 
 template<class T1>
+
 // перегруженный оператор вывода для класса Array (вывод элементов массива на экран)
 ostream &operator<< (ostream &output, const Matrix<T1> &obj)
 {
@@ -709,3 +727,5 @@ istream &operator>> (istream & input, Matrix<T1> &obj)
 
     return input; // позволяет множественный ввод, типа cin >> x >> y >> z >> ...
 }
+
+#endif // MATRIX_H

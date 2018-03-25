@@ -1,5 +1,4 @@
 #include <iostream>
-//using namespace std;
 
 #include "matrix.h"
 #include "array.h"
@@ -9,29 +8,40 @@
 #include <stdio.h>
 #include "word2vec.h"
 
-
 //TODO:
-//redaction methods for memory and speed economy
+//redaction methods for memory economy and speed increases
 //problem with concat method: return truncated matrix - without raws or columns
-// problems with save method. It try to convert int ti char. I dont know why.
-//problem with using function TrainModel. Linker gets an error that TrainModel() undefined reference sooqa
-//make clean with includes
-//probably for saving matrixes would using fprintf/fscanf
 
-/*
+//make clean with includes
+
+void cp(char * s2)
+{
+    char s1[5];
+    strcpy(s1,s2);
+    printf("%s",s1);
+}
 int main()
 {
     srand(time(NULL));
-    Matrix<int> b(2,4);
-    TrainModel();
-    //b.save('./mat.bin');
-    /*
-    fclose(myfile);
-    myfile = fopen ("./hello.txt", "r");
-    fread(c, sizeof(int), 2, myfile);
-    std::cout<<c[0]<<c[1]<<std::endl;
+    Matrix<float> b(10,100);
+    Matrix<float> c;
+    //word2vecStandartInit("/home/igor/test.txt");
+    //ReadVocab("./save.mod1");
+    //TrainModel(b);
+    //SaveVocab("./save.mod");
+    b.fill_normal(0,1);
+    b.save("./mat.bin");
+    c.load("./mat.bin");
+    //cout<<endl<<b;
+    //cout<<c;
+    if (c == b)
+        cout<<"True"<<endl;
+    //fclose(myfile);
+    //myfile = fopen ("./hello.txt", "r");
+    //fread(c, sizeof(int), 2, myfile);
+   // std::cout<<c[0]<<c[1]<<std::endl;
 
-*/
+
 
     /*
     Matrix<float> input(4,2);
@@ -115,9 +125,9 @@ int main()
         cout<<"Input: "<<endl<<input.slice_raw(i,0);
         cout<<"Output: "<<f_out[0][0]<<endl;
     }
-
+*/
 
     return 0;
 
 }
-*/
+
