@@ -58,6 +58,8 @@ class Matrix : public Array<T1>
     friend Matrix<F1> operator/(Matrix<F1> &, F1);
 
 
+
+
 private:
 
 
@@ -79,7 +81,7 @@ public:
 
     void T();
     void fill_rand(const T1 a, const T1 b);
-    void fill_normal(float mean,float std);
+    void fill_normal(float mean=0,float std=1);
     void resize_matrix(int raw, int column);
     void fill_one();
     void fill_diag();
@@ -90,7 +92,7 @@ public:
     int *search(const int key) const; // поиск по ключу
 
     //element-wise operations
-    Matrix operator*(const Matrix &right);
+    Matrix<T1> operator*(const Matrix &right);
     Matrix operator+ (const Matrix &right);
     Matrix operator- (const Matrix &right);
     Matrix operator/ (const Matrix &right);
@@ -98,6 +100,7 @@ public:
     Matrix operator+= (const Matrix &right);
 
     Matrix dot(const Matrix &b);
+    Matrix dot1(Matrix &b);
     Matrix transpose();
     Matrix<T1> concat( Matrix &b, char mode);
 
@@ -109,8 +112,145 @@ public:
     Matrix<T1> slice_raw(int raw, int col);
     Matrix<T1> slice_col(int raw, int col);
     Matrix<T1> slice_mat(int st_raw, int end_raw, int st_col, int end_col);
+    Matrix<T1> drop_column(int raw);
+
+    Matrix<int> to_int();
+    Matrix<float> to_float();
+
+    Matrix<T1> inv(int k = 0, float e = 0.01);
+    float Frobenius_norm();
+
 
 };
+/** \brief Compute Frobenius norm.
+ *
+ * \return  float number of Frobenius norm.
+ *
+ */
+
+template<class T1>
+float Matrix<T1>::Frobenius_norm()
+{
+    float sum = 0;
+    for(int i=0; i< raws; i++)
+        for(int j=0; j< columns; j++)
+            sum += ArrayPtr[i][j] * ArrayPtr[i][j];
+    return sqrt(sum);
+}
+
+/** \brief Compute inversion matrix by Shultz method. Matrix must be a square.
+ *
+ * \param [in] e limit error. 0.01 by default.
+ * \param [in] k order of method
+ * \return  Inversion matrix
+ *
+ */
+
+template<class T1>
+Matrix<T1> Matrix<T1>::inv(int k, float e)
+//Question about initialization U matrix -> norm of psi matrix  must be less then 1;
+// http://mathhelpplanet.com/static.php?p=iteratsionnyi-metod-shultsa-nakhozhdeniya-obratnoi-matritsy
+
+{
+    if(raws != columns)
+    {
+        cout<<"Matrix is not square.";
+        exit(1);
+    }
+    int count = 0 ;
+    Matrix<float> U(raws, columns);
+    Matrix<float> E(raws, columns);
+    Matrix<float> P(raws, columns);
+    Matrix<float> tmp;
+    float fr_norm = 0;
+    E.fill_diag();
+
+    tmp = this->dot(this->transpose());
+    fr_norm = tmp.Frobenius_norm();
+    tmp = this->transpose();
+    U = tmp / fr_norm;
+    do
+    {
+        P = E - (this->dot(U));
+        cout<< "Psi is: "<<endl<<P;
+        cout<<"Frob norm of psi is: "<<P.Frobenius_norm();
+        if( P.Frobenius_norm() >= 1 )
+        {
+            cout<<"Frobenius norm of psi matrix more or equal then 1";
+            exit(1);
+        }
+        U = U.dot(E + P);
+        fr_norm = P.Frobenius_norm();
+    }while(fr_norm > e);
+    return U;
+
+}
+
+/** \brief Convert matrix to int type (crunch)
+ *
+ * \return Int matrix
+ *
+ */
+
+template<class T1>
+Matrix<int> Matrix<T1>::to_int()
+{
+    Matrix<int> result(raws, columns);
+    for(int i=0;i < raws;i++)
+        for(int j=0; j< columns; j++)
+            result[i][j] = (int)ArrayPtr[i][j];
+    return result;
+}
+
+/** \brief Convert matrix to float type (crunch)
+ *
+ * \return Float matrix
+ *
+ */
+
+template<class T1>
+Matrix<float> Matrix<T1>::to_float()
+{
+    Matrix<float> result(raws, columns);
+    for(int i=0;i < raws;i++)
+        for(int j=0; j< columns; j++)
+            result[i][j] = (float)ArrayPtr[i][j];
+    return result;
+}
+
+/** \brief Delite column by index. Parent matrix don't change.
+ *
+ *  \param [in] column_index Index of column
+ *  \return Matrix with dropped column
+ *
+ */
+
+template<class T1>
+Matrix<T1> Matrix<T1>::drop_column(int column_index)
+{
+    Matrix<T1> tmp(raws, columns -1);
+    for(int i=0;i < raws; i++)
+    {
+        int offset = 0;
+        for(int j=0; j < columns; j++)
+        {
+
+            if(j == column_index)
+            {
+                offset += 1;
+                //j++;
+            }
+            else tmp[i][j-offset] = ArrayPtr[i][j];
+        }
+    }
+    return tmp;
+}
+
+/** \brief Save matrix on disk. Type of matrix don't save yet so writing type in the name is good idea.
+ *
+ * \param [in] path Path to file
+ *
+ */
 
 template<class T1>
 void Matrix<T1>::save(char* path)
@@ -140,6 +280,12 @@ void Matrix<T1>::save(char* path)
     fclose(myfile);
 }
 
+/** \brief Load matrix from file. The matrix should has been created and specified a type in advance.
+ *
+ * \param [in] path Path to file
+ *
+ */
+
 template<class T1>
 void Matrix<T1>::load(char* path)
 {
@@ -159,6 +305,11 @@ void Matrix<T1>::load(char* path)
 
 }
 
+ /** \brief Set all elements of matrix to 1.
+ *
+ *
+ */
+
 template<class T1>
 void Matrix<T1>::fill_one()
 {
@@ -167,6 +318,11 @@ void Matrix<T1>::fill_one()
             ArrayPtr[i][j] = 1;
 
 }
+
+/** \brief Set diagonal elements of matrix to 1.
+ *
+ *
+ */
 
 template<class T1>
 void Matrix<T1>::fill_diag()
@@ -179,6 +335,11 @@ void Matrix<T1>::fill_diag()
         j++;
     }
 }
+
+/** \brief Concatenate matrices by column or by row
+ *  \param [in] b Another matrix
+ *  \param [in] mode if 'c' then column concat, if 'r' then row concat
+ */
 
 template<class T1>
 Matrix<T1> Matrix<T1>::concat(Matrix &b, char mode)
@@ -375,7 +536,7 @@ Matrix<T1> Matrix<T1>::operator- (const Matrix &right)
 }
 
 template<class T1>
-Matrix<T1> Matrix<T1>::operator*(const Matrix &right)
+Matrix<T1> Matrix<T1>::operator*(const Matrix<T1> &right)
 //element-wise multiplication of matrixes
 {
     if (raws != right.raws || columns != right.columns)
@@ -414,6 +575,11 @@ Matrix<T1> Matrix<T1>::operator/(const Matrix &right)
 
 }
 
+/** \brief In-place transpose matrix
+ *
+ *
+ */
+
 template<class T1>
 void Matrix<T1>::T()
 //in-place transpose
@@ -437,6 +603,11 @@ void Matrix<T1>::T()
         }
     }
 }
+
+/** \brief Transpose matrix
+ *  \return Transposed matrix
+ *
+ */
 
 template<class T1>
 Matrix<T1> Matrix<T1>::transpose()
@@ -510,9 +681,16 @@ bool Matrix<T1>::operator== (const Matrix &right) const// оператор ср�
     return true; // матрицы равны
 }
 
+/** \brief Fill matrix a random numbers in rand [a,b]
+ *
+ * \param [in] a Lower bound of range
+ * \param [in] b Higher bound of range
+ * \return
+ *
+ */
+
 template<class T1>
 void Matrix<T1>::fill_rand(const T1 a, const T1 b)
-// fill matrix a random numbers in rand [a,b]
 {
     for(int i=0;i<raws;i++)
     {
@@ -520,9 +698,16 @@ void Matrix<T1>::fill_rand(const T1 a, const T1 b)
     }
 }
 
+/** \brief Fill matrix with normal distributed numbers
+ *
+ * \param [in] mean Mean
+ * \param [in] std Standard deviation
+ * \return
+ *
+ */
+
 template<class T1>
 void Matrix<T1>::fill_normal(float mean,float std)
-// fill matrix with normal distributed numbers
 {
     for(int i=0;i<raws;i++)
     {
@@ -598,7 +783,8 @@ Matrix<T1> Matrix<T1>::dot(const Matrix &b)
 // multiplying matrixes
 {
      if(columns != b.raws){
-        cout<<"Incompatable sizes of matrixes."<<std::endl;
+        //cout<<"Incompatable sizes of matrixes:"<<std::endl;
+        printf("Incompatable sizes of matrixes: (%d, %d) and (%d, %d)", raws, columns, b.raws, b.columns);
         exit(1);
     }
     Matrix result(raws,b.columns);
@@ -611,6 +797,29 @@ Matrix<T1> Matrix<T1>::dot(const Matrix &b)
     }
     return result;
 }
+
+template<class T1>
+Matrix<T1> Matrix<T1>::dot1(Matrix &b)
+// multiplying matrixes
+{
+    T1 r;
+     if(columns != b.raws){
+        cout<<"Incompatable sizes of matrixes."<<std::endl;
+        exit(1);
+    }
+    Matrix result(raws,b.columns);
+    for(int i = 0; i < raws; i++)
+    for(int j = 0; j < b.columns; j++)
+    {
+        r = ArrayPtr[i][j];
+        for(int k = 0; k < b.raws; k++)
+            //result.ArrayPtr[i][j] += ArrayPtr[i][k] * b.ArrayPtr[k][j];
+            result.ArrayPtr[i][k] += r*b.ArrayPtr[j][k];
+    }
+    return result;
+}
+
+
 
 //----------------------------------
 // in this section placed overloaded functions-friends:
@@ -630,7 +839,7 @@ Matrix<T1> operator+(T1 left,Matrix<T1> &right)
 template<class T1> //why are both variants T1 and F1 fi?
 Matrix<T1> operator-(T1 left,Matrix<T1> &right)
 {
-    Matrix<T1> res;
+    Matrix<T1> res(right.raws, right.columns);
     for(int i=0;i<right.raws;i++)
         for(int j=0;j<right.columns;j++)
             res[i][j] = left - right[i][j];
@@ -640,7 +849,7 @@ Matrix<T1> operator-(T1 left,Matrix<T1> &right)
 template<class T1> //why are both variants T1 and F1 fi?
 Matrix<T1> operator*(T1 left,Matrix<T1> &right)
 {
-    Matrix<T1> res;
+    Matrix<T1> res(right.raws, right.columns);
     for(int i=0;i<right.raws;i++)
         for(int j=0;j<right.columns;j++)
             res[i][j] = left * right[i][j];
@@ -648,9 +857,9 @@ Matrix<T1> operator*(T1 left,Matrix<T1> &right)
 }
 
 template<class T1> //why are both variants T1 and F1 fi?
-Matrix<T1> operator/(T1 left,Matrix<T1> &right)
+Matrix<T1> operator/(T1 left, Matrix<T1> &right)
 {
-    Matrix<T1> res;
+    Matrix<T1> res(right.raws, right.columns);
     for(int i=0;i<right.raws;i++)
         for(int j=0;j<right.columns;j++)
             res[i][j] = left / right[i][j];
@@ -660,7 +869,7 @@ Matrix<T1> operator/(T1 left,Matrix<T1> &right)
 template<class T1> //why are both variants T1 and F1 fi?
 Matrix<T1> operator+(Matrix<T1> &left, T1 right)
 {
-    Matrix<T1> res;
+    Matrix<T1> res(left.raws, left.columns);
     for(int i=0;i<left.raws;i++)
         for(int j=0;j<left.columns;j++)
             res[i][j] = left[i][j] + right;
@@ -670,7 +879,7 @@ Matrix<T1> operator+(Matrix<T1> &left, T1 right)
 template<class T1> //why are both variants T1 and F1 fi?
 Matrix<T1> operator-(Matrix<T1> &left, T1 right)
 {
-    Matrix<T1> res;
+    Matrix<T1> res(left.raws, left.columns);
     for(int i=0;i<left.raws;i++)
         for(int j=0;j<left.columns;j++)
             res[i][j] = left[i][j] - right;
@@ -680,7 +889,7 @@ Matrix<T1> operator-(Matrix<T1> &left, T1 right)
 template<class T1> //why are both variants T1 and F1 fi?
 Matrix<T1> operator*(Matrix<T1> &left, T1 right)
 {
-    Matrix<T1> res;
+    Matrix<T1> res(left.raws, left.columns);
     for(int i=0;i<left.raws;i++)
         for(int j=0;j<left.columns;j++)
             res[i][j] = left[i][j] * right;
@@ -690,7 +899,7 @@ Matrix<T1> operator*(Matrix<T1> &left, T1 right)
 template<class T1> //why are both variants T1 and F1 fi?
 Matrix<T1> operator/(Matrix<T1> &left, T1 right)
 {
-    Matrix<T1> res;
+    Matrix<T1> res(left.raws, left.columns);
     for(int i=0;i<left.raws;i++)
         for(int j=0;j<left.columns;j++)
             res[i][j] = left[i][j] / right;

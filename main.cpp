@@ -7,12 +7,14 @@
 #include <fstream>
 #include <stdio.h>
 #include "word2vec.h"
-
+#include "stdio.h"
 //TODO:
 //redaction methods for memory economy and speed increases
 //problem with concat method: return truncated matrix - without raws or columns
-
-//make clean with includes
+//Make method "drop" void type too.
+//Crunch for type conversion. Make type conversion with overloading conversion operators.
+//Trouble with friend operators. If expression given implicitly than compiler return an error of mismatch.
+//In note to this error told that compiler could not find conversion from Matrix<> to Matrix<>& WTF??
 
 void cp(char * s2)
 {
@@ -20,27 +22,73 @@ void cp(char * s2)
     strcpy(s1,s2);
     printf("%s",s1);
 }
+
 int main()
 {
+
     srand(time(NULL));
-    Matrix<float> b(10,100);
-    Matrix<float> c;
+
+    Matrix<float> x_i, x_sum, weiths, loss, delta_w, x_train, y_train, z, p, u;
+    Matrix<int> x1_train;
+    float learning_rate = 0.001;
+    x1_train.load("./train_matrix_int.bin");
+
+    y_train = x1_train.slice_col(0,0).to_float();
+    x_train = x1_train.drop_column(0).to_float();
+
+    x_train = x_train + (float)0.1;
+    y_train = y_train + (float)0.1;
+    float y_train_mean = 0;
+    for(int i =0; i < y_train.raws; i++)
+    {
+        y_train_mean += y_train[i][0];
+    }
+    y_train_mean /= y_train.raws;
+    weiths.resize_matrix(1, x_train.columns);
+    weiths[0][0] = y_train_mean;
+    //weiths = weiths *weiths;
+    int num_raws = x_train.raws;
+    cout<<weiths;
+
+    for(int i=0; i< 10; i++)
+    {
+        z = x_train.dot(weiths.transpose());
+    }
+    p.resize_matrix(x_train.raws, 1);
+    for(int i =0 ;i  < p.raws; i++)
+    {
+        p[i][0] = 1/(1 + exp(- z[i][0]));
+    }
+    u = z + (y_train - p) / (p*((float)1-p));
+
+    /*this cycle realise gradient descent algorithm.
+    for(int i=0;i < num_raws; i++)
+    {
+       x_i = x_train.slice_raw(i, 0);
+       x_i.T();
+       x_sum = weiths.dot(x_i);
+
+       x_sum = x_sum.activation();
+        if(i % 1000 == 0) cout<<"x_i: "<<x_sum<<endl;
+       loss = (y_train.slice_raw(i,0) - x_sum) * (y_train.slice_raw(i,0) - x_sum);
+        //if(i % 1000 == 0) cout<<"x_i: "<<loss<<endl;
+       //if(loss[0][0] < 0.0001 ) break;
+       delta_w = (y_train.slice_raw(i, 0) - x_sum)*(x_sum*((float)1.0 - x_sum));
+       //cout<<(y_train.slice_raw(i, 0) - x_sum);
+       //(y_train.slice_raw(i, 0) - x_sum[0][0]);
+       //if(i % 1 == 0 && i < 10) cout<<delta_w;
+       delta_w = delta_w[0][0] * x_i;
+       delta_w = delta_w*learning_rate;
+
+       weiths = weiths - delta_w.transpose();
+    }*/
+    cout<<"Last loss: "<<loss<<endl;
+    cout<< weiths;
+
     //word2vecStandartInit("/home/igor/test.txt");
     //ReadVocab("./save.mod1");
     //TrainModel(b);
     //SaveVocab("./save.mod");
-    b.fill_normal(0,1);
-    b.save("./mat.bin");
-    c.load("./mat.bin");
-    //cout<<endl<<b;
-    //cout<<c;
-    if (c == b)
-        cout<<"True"<<endl;
-    //fclose(myfile);
-    //myfile = fopen ("./hello.txt", "r");
-    //fread(c, sizeof(int), 2, myfile);
-   // std::cout<<c[0]<<c[1]<<std::endl;
-
 
 
     /*
